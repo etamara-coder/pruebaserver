@@ -5,6 +5,10 @@ defineProps<{
   rutinas: Rutina[]
 }>()
 
+const emit = defineEmits<{
+  eliminar: [rutina: Rutina]
+}>()
+
 function colorNivel(nivel: Rutina['nivel']): string {
   const colores: Record<Rutina['nivel'], string> = {
     Principiante: 'success',
@@ -59,6 +63,15 @@ function colorNivel(nivel: Rutina['nivel']): string {
         <v-card-actions class="px-4 pb-4">
           <v-icon icon="mdi-account-tie-outline" size="18" color="medium-emphasis" />
           <span class="text-caption text-medium-emphasis">Entrenador: {{ rutina.entrenador }}</span>
+          <v-spacer />
+          <v-btn
+            aria-label="Eliminar rutina"
+            color="error"
+            icon="mdi-delete-outline"
+            size="small"
+            variant="text"
+            @click="emit('eliminar', rutina)"
+          />
         </v-card-actions>
       </v-card>
     </v-col>

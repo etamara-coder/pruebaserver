@@ -1,0 +1,68 @@
+import type { Rutina } from '../types/rutina'
+
+// Datos de ejemplo en memoria: se reinician cada vez que se apaga el servidor.
+export const rutinas: Rutina[] = [
+  {
+    id: 'rut-001',
+    nombre: 'Full Body Inicial',
+    descripcion: 'Circuito de fuerza y acondicionamiento para quienes inician su proceso.',
+    nivel: 'Principiante',
+    duracionMinutos: 45,
+    entrenador: 'Laura Gómez',
+    activa: true,
+  },
+  {
+    id: 'rut-002',
+    nombre: 'Hipertrofia Superior',
+    descripcion: 'Trabajo enfocado en pecho, espalda, hombros y brazos.',
+    nivel: 'Intermedio',
+    duracionMinutos: 60,
+    entrenador: 'Andrés Mejía',
+    activa: true,
+  },
+  {
+    id: 'rut-003',
+    nombre: 'HIIT Quema Calorías',
+    descripcion: 'Intervalos de alta intensidad con ejercicios funcionales.',
+    nivel: 'Avanzado',
+    duracionMinutos: 30,
+    entrenador: 'Laura Gómez',
+    activa: true,
+  },
+  {
+    id: 'rut-005',
+    nombre: 'Cardio y Resistencia',
+    descripcion: 'Trabajo aeróbico por intervalos para mejorar la resistencia y la capacidad pulmonar.',
+    nivel: 'Intermedio',
+    duracionMinutos: 40,
+    entrenador: 'Sofía Herrera',
+    activa: true,
+  },
+  {
+    id: 'rut-006',
+    nombre: 'Fuerza de Piernas y Glúteos',
+    descripcion: 'Sentadillas, peso muerto y zancadas con cargas progresivas para tren inferior.',
+    nivel: 'Avanzado',
+    duracionMinutos: 55,
+    entrenador: 'Andrés Mejía',
+    activa: true,
+  },
+  {
+    id: 'rut-007',
+    nombre: 'Core y Estabilidad',
+    descripcion: 'Planchas, abdominales y ejercicios de equilibrio para fortalecer el abdomen y la zona lumbar.',
+    nivel: 'Intermedio',
+    duracionMinutos: 30,
+    entrenador: 'Laura Gómez',
+    activa: true,
+  },
+  {
+    id: 'rut-004',
+    nombre: 'Movilidad y Recuperación',
+    descripcion: 'Sesión de movilidad articular, estiramientos y respiración.',
+    nivel: 'Principiante',
+    duracionMinutos: 35,
+    entrenador: 'Sofía Herrera',
+    activa: false,
+  },
+]

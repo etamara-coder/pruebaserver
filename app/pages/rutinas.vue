@@ -2,13 +2,15 @@
 import RutinasFiltro from '~/components/rutinas/Filtro.vue'
 import RutinasFormulario from '~/components/rutinas/Formulario.vue'
 import RutinasListado from '~/components/rutinas/Listado.vue'
-import type { NuevaRutina } from '~/stores/rutinas'
+import type { NuevaRutina, Rutina } from '~/stores/rutinas'
 import { useRutinasStore } from '~/stores/rutinas'
 
 const store = useRutinasStore()
 
 const busqueda = ref('')
 const dialogoAbierto = ref(false)
+const dialogoEliminar = ref(false)
+const rutinaAEliminar = ref<Rutina | null>(null)
 const snackbar = ref(false)
 const mensaje = ref('')
 const colorMensaje = ref<'success' | 'error'>('success')
@@ -48,6 +50,28 @@ async function guardarRutina(datos: NuevaRutina) {
     mostrarMensaje('Rutina registrada correctamente.', 'success')
   } catch {
     mostrarMensaje(store.error ?? 'No se pudo registrar la rutina.', 'error')
+  }
+}
+
+function pedirConfirmacion(rutina: Rutina) {
+  rutinaAEliminar.value = rutina
+  dialogoEliminar.value = true
+}
+
+async function confirmarEliminacion() {
+  const rutina = rutinaAEliminar.value
+
+  if (!rutina) {
+    return
+  }
+
+  try {
+    await store.eliminarRutina(rutina.id)
+    mostrarMensaje(`Rutina "${rutina.nombre}" eliminada.`, 'success')
+  } catch {
+    mostrarMensaje(store.error ?? 'No se pudo eliminar la rutina.', 'error')
+  } finally {
+    dialogoEliminar.value = false
   }
 }
 </script>
@@ -125,7 +149,7 @@ async function guardarRutina(datos: NuevaRutina) {
 
     <v-progress-linear v-if="store.cargando" class="mb-4 rounded" color="primary" indeterminate />
 
-    <RutinasListado v-else :rutinas="rutinasFiltradas" />
+    <RutinasListado v-else :rutinas="rutinasFiltradas" @eliminar="pedirConfirmacion" />
 
     <v-dialog v-model="dialogoAbierto" max-width="680" persistent scrollable>
       <RutinasFormulario
@@ -134,6 +158,35 @@ async function guardarRutina(datos: NuevaRutina) {
         @guardar="guardarRutina"
         @cancelar="dialogoAbierto = false"
       />
+    </v-dialog>
+
+    <v-dialog v-model="dialogoEliminar" max-width="420" persistent>
+      <v-card rounded="lg">
+        <v-card-item>
+          <v-card-title>Eliminar rutina</v-card-title>
+        </v-card-item>
+
+        <v-card-text>
+          ¿Seguro que quieres eliminar <strong>{{ rutinaAEliminar?.nombre }}</strong>?
+          Esta acción no se puede deshacer.
+        </v-card-text>
+
+        <v-card-actions class="pa-4">
+          <v-spacer />
+          <v-btn :disabled="store.eliminando" variant="text" @click="dialogoEliminar = false">
+            Cancelar
+          </v-btn>
+          <v-btn
+            color="error"
+            :loading="store.eliminando"
+            prepend-icon="mdi-delete-outline"
+            variant="flat"
+            @click="confirmarEliminacion"
+          >
+            Eliminar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
     <v-snackbar v-model="snackbar" :color="colorMensaje" :timeout="3500">

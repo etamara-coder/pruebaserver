@@ -19,6 +19,7 @@ interface RutinasState {
   rutinas: Rutina[]
   cargando: boolean
   guardando: boolean
+  eliminando: boolean
   error: string | null
 }
 
@@ -27,6 +28,7 @@ export const useRutinasStore = defineStore('rutinas', {
     rutinas: [],
     cargando: false,
     guardando: false,
+    eliminando: false,
     error: null,
   }),
 
@@ -67,6 +69,22 @@ export const useRutinasStore = defineStore('rutinas', {
         throw error
       } finally {
         this.guardando = false
+      }
+    },
+
+    async eliminarRutina(id: string) {
+      this.eliminando = true
+      this.error = null
+
+      try {
+        await $fetch(`/api/rutinas/${id}`, { method: 'DELETE' })
+
+        this.rutinas = this.rutinas.filter((rutina) => rutina.id !== id)
+      } catch (error) {
+        this.error = mensajeErrorApi(error, 'No se pudo eliminar la rutina.')
+        throw error
+      } finally {
+        this.eliminando = false
       }
     },
   },
