@@ -74,5 +74,41 @@ export const useEquiposStore = defineStore('equipos', {
         this.guardando = false
       }
     },
+
+    async actualizarEquipo(id: string, datos: NuevoEquipo) {
+      this.guardando = true
+      this.error = null
+
+      try {
+        const equipo = await $fetch<Equipo>('/api/equipos', {
+          method: 'PUT',
+          body: { id, ...datos },
+        })
+
+        this.equipos = this.equipos.map((actual) => (actual.id === equipo.id ? equipo : actual))
+        return equipo
+      } catch (error) {
+        this.error = mensajeErrorApi(error, 'No se pudo actualizar el equipo.')
+        throw error
+      } finally {
+        this.guardando = false
+      }
+    },
+
+    async eliminarEquipo(id: string) {
+      this.error = null
+
+      try {
+        await $fetch('/api/equipos', {
+          method: 'DELETE',
+          body: { id },
+        })
+
+        this.equipos = this.equipos.filter((equipo) => equipo.id !== id)
+      } catch (error) {
+        this.error = mensajeErrorApi(error, 'No se pudo eliminar el equipo.')
+        throw error
+      }
+    },
   },
 })

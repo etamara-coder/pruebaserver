@@ -2,13 +2,14 @@
 import EquiposFiltro from '~/components/equipos/Filtro.vue'
 import EquiposFormulario from '~/components/equipos/Formulario.vue'
 import EquiposListado from '~/components/equipos/Listado.vue'
-import type { NuevoEquipo } from '~/stores/equipos'
+import type { Equipo, NuevoEquipo } from '~/stores/equipos'
 import { useEquiposStore } from '~/stores/equipos'
 
 const store = useEquiposStore()
 
 const busqueda = ref('')
 const dialogoAbierto = ref(false)
+const equipoEditando = ref<Equipo | null>(null)
 const snackbar = ref(false)
 const mensaje = ref('')
 const colorMensaje = ref<'success' | 'error'>('success')
@@ -37,13 +38,50 @@ function mostrarMensaje(texto: string, color: 'success' | 'error') {
   snackbar.value = true
 }
 
-async function guardarEquipo(datos: NuevoEquipo) {
+function abrirNuevo() {
+  equipoEditando.value = null
+  dialogoAbierto.value = true
+}
+
+function editarEquipo(equipo: Equipo) {
+  equipoEditando.value = equipo
+  dialogoAbierto.value = true
+}
+
+function cerrarDialogo() {
+  dialogoAbierto.value = false
+  equipoEditando.value = null
+}
+
+async function eliminarEquipo(id: string) {
   try {
-    await store.crearEquipo(datos)
-    dialogoAbierto.value = false
-    mostrarMensaje('Equipo registrado correctamente.', 'success')
+    await store.eliminarEquipo(id)
+    mostrarMensaje('Equipo eliminado correctamente.', 'success')
   } catch {
-    mostrarMensaje(store.error ?? 'No se pudo registrar el equipo.', 'error')
+    mostrarMensaje(store.error ?? 'No se pudo eliminar el equipo.', 'error')
+  }
+}
+
+async function guardarEquipo(datos: NuevoEquipo) {
+  const editando = !!equipoEditando.value
+
+  try {
+    if (equipoEditando.value) {
+      await store.actualizarEquipo(equipoEditando.value.id, datos)
+    } else {
+      await store.crearEquipo(datos)
+    }
+
+    cerrarDialogo()
+    mostrarMensaje(
+      editando ? 'Equipo actualizado correctamente.' : 'Equipo registrado correctamente.',
+      'success',
+    )
+  } catch {
+    mostrarMensaje(
+      store.error ?? (editando ? 'No se pudo actualizar el equipo.' : 'No se pudo registrar el equipo.'),
+      'error',
+    )
   }
 }
 </script>
@@ -59,7 +97,7 @@ async function guardarEquipo(datos: NuevoEquipo) {
         </p>
       </div>
 
-      <v-btn color="primary" prepend-icon="mdi-plus" size="large" @click="dialogoAbierto = true">
+      <v-btn color="primary" prepend-icon="mdi-plus" size="large" @click="abrirNuevo">
         Nuevo equipo
       </v-btn>
     </div>
@@ -121,14 +159,20 @@ async function guardarEquipo(datos: NuevoEquipo) {
 
     <v-progress-linear v-if="store.cargando" class="mb-4 rounded" color="primary" indeterminate />
 
-    <EquiposListado v-else :equipos="equiposFiltrados" />
+    <EquiposListado
+      v-else
+      :equipos="equiposFiltrados"
+      @editar="editarEquipo"
+      @eliminar="eliminarEquipo"
+    />
 
     <v-dialog v-model="dialogoAbierto" max-width="680" persistent scrollable>
       <EquiposFormulario
         v-if="dialogoAbierto"
         :cargando="store.guardando"
+        :equipo-inicial="equipoEditando"
         @guardar="guardarEquipo"
-        @cancelar="dialogoAbierto = false"
+        @cancelar="cerrarDialogo"
       />
     </v-dialog>
 

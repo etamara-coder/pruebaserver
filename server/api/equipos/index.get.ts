@@ -1,5 +1,5 @@
-import { equipos } from '../../data/equipos'
+import { equiposDB } from './data'
 
 export default defineEventHandler(() => {
-  return equipos
+  return equiposDB
 })

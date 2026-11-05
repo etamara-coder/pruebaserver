@@ -5,6 +5,11 @@ defineProps<{
   equipos: Equipo[]
 }>()
 
+const emit = defineEmits<{
+  editar: [equipo: Equipo]
+  eliminar: [id: string]
+}>()
+
 const coloresEstado: Record<EstadoEquipo, string> = {
   Disponible: 'success',
   'En mantenimiento': 'warning',
@@ -31,6 +36,7 @@ function formatearFecha(fecha: string): string {
           <th class="text-center font-weight-bold">Cantidad</th>
           <th class="text-left font-weight-bold">Estado</th>
           <th class="text-left font-weight-bold">Adquisición</th>
+          <th class="text-right font-weight-bold">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -46,6 +52,22 @@ function formatearFecha(fecha: string): string {
             </v-chip>
           </td>
           <td class="text-body-2">{{ formatearFecha(equipo.fechaAdquisicion) }}</td>
+          <td class="text-right text-no-wrap">
+            <v-btn
+              color="primary"
+              icon="mdi-pencil"
+              size="small"
+              variant="text"
+              @click="emit('editar', equipo)"
+            />
+            <v-btn
+              color="error"
+              icon="mdi-delete"
+              size="small"
+              variant="text"
+              @click="emit('eliminar', equipo.id)"
+            />
+          </td>
         </tr>
       </tbody>
     </v-table>

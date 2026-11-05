@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { NuevoEquipo } from '~/stores/equipos'
+import type { Equipo, NuevoEquipo } from '~/stores/equipos'
 
-defineProps<{
+const props = defineProps<{
   cargando?: boolean
+  equipoInicial?: Equipo | null
 }>()
 
 const emit = defineEmits<{
@@ -15,12 +16,14 @@ const formRef = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(null
 const estados = ['Disponible', 'En mantenimiento', 'Fuera de servicio']
 
 const formulario = reactive<NuevoEquipo>({
-  nombre: '',
-  categoria: '',
-  cantidad: 1,
-  estado: 'Disponible',
-  fechaAdquisicion: new Date().toISOString().slice(0, 10),
+  nombre: props.equipoInicial?.nombre ?? '',
+  categoria: props.equipoInicial?.categoria ?? '',
+  cantidad: props.equipoInicial?.cantidad ?? 1,
+  estado: props.equipoInicial?.estado ?? 'Disponible',
+  fechaAdquisicion: props.equipoInicial?.fechaAdquisicion ?? new Date().toISOString().slice(0, 10),
 })
+
+const editando = computed(() => !!props.equipoInicial)
 
 async function enviar() {
   const resultado = await formRef.value?.validate()
@@ -41,8 +44,10 @@ async function enviar() {
 <template>
   <v-card rounded="lg">
     <v-card-item>
-      <v-card-title>Registrar nuevo equipo</v-card-title>
-      <v-card-subtitle>Agrega una máquina o implemento al inventario.</v-card-subtitle>
+      <v-card-title>{{ editando ? 'Editar equipo' : 'Registrar nuevo equipo' }}</v-card-title>
+      <v-card-subtitle>
+        {{ editando ? 'Modifica los datos del equipo seleccionado.' : 'Agrega una máquina o implemento al inventario.' }}
+      </v-card-subtitle>
     </v-card-item>
 
     <v-divider />
@@ -127,7 +132,7 @@ async function enviar() {
           type="submit"
           variant="flat"
         >
-          Guardar equipo
+          {{ editando ? 'Guardar cambios' : 'Guardar equipo' }}
         </v-btn>
       </v-card-actions>
     </v-form>
